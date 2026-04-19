@@ -1,0 +1,12 @@
+[project]
+name = "hrms"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "dj-database-url>=3.0.1",
+    "django>=4.2.30",
+    "djangorestframework>=3.16.1",
+    "djangorestframework-simplejwt>=5.5.1",
+    "psycopg2-binary>=2.9.11",
+    "python-dotenv>=1.2.1",
+]
