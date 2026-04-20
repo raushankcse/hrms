@@ -22,6 +22,19 @@ class LoginSerializer(serializers.Serializer):
         return data
 
 
+class RefreshTokenSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate(self, data):
+        try:
+            refresh = RefreshToken(data["refresh"])
+        except Exception:
+            raise serializers.ValidationError({"message": "Invalid refresh token."})
+
+        return {
+            "access": str(refresh.access_token),
+        }
+
 
 
 
