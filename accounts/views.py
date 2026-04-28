@@ -1,5 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.shortcuts import render
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -7,7 +9,11 @@ from .models import CustomUser
 
 from accounts.jwt_utils import get_ttl, blacklist_key
 from accounts.redis_client import redis_client
-from accounts.serializers import LoginSerializer, RefreshTokenSerializer
+from accounts.serializers import LoginSerializer, RefreshTokenSerializer, UserListSerializer, AdminSetPasswordSerializer
+from .permissions import IsAdminOnly
+
+User = get_user_model()
+
 
 
 # Create your views here.
@@ -112,3 +118,39 @@ class LogoutApiView(APIView):
         response.delete_cookie("refresh")
 
         return response
+
+
+class UserListView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminOnly ]
+
+    def get(self, request):
+        users = User.objects.all().only("id", "email", "role")
+        serializer = UserListSerializer(users, many=True)
+        return Response(serializer.data)
+
+class AdminSetPasswordView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminOnly]
+
+    def post(self, request):
+        serializer = AdminSetPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user_id = serializer.validated_data["user_id"]
+        password = serializer.validated_data["password"]
+
+        try:
+            user = User.objects.get(id = user_id)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        user.set_password(password)
+        user.save()
+
+        return Response(
+            {"message": "Password updated successfully"},
+            status=status.HTTP_200_OK
+        )
+    

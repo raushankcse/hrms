@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from employee.serializers import User
 
 
 class LoginSerializer(serializers.Serializer):
@@ -38,6 +39,19 @@ class RefreshTokenSerializer(serializers.Serializer):
 
 
 
-        
+
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "email", "role"]
 
 
+
+class AdminSetPasswordSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    password = serializers.CharField(write_only=True)
+
+    def validate_password(self, value):
+        if len(value) < 6 :
+            raise serializers.ValidationError("Password must be at least 6 characters.")
+        return value
