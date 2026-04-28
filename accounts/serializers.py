@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -36,5 +37,7 @@ class RefreshTokenSerializer(serializers.Serializer):
         }
 
 
+
+        
 
 

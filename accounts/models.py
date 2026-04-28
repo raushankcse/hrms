@@ -1,52 +1,65 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
-# Create your models here.
-class CustomUser(AbstractUser):
-    email = models.EmailField(max_length=255, unique=True, blank=False)
+
+class CustomUserManager(BaseUserManager):
+
+    def create_user(self, email, password=None, role=None, **extra_fields):
+        if not email:
+            raise ValueError("Email is required")
+        if not role:
+            raise ValueError("Role is required")
+
+        email = self.normalize_email(email)
+
+        user = self.model(
+            email=email,
+            role=role,
+            **extra_fields
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        # 🔥 Force ADMIN (no conflict now)
+        return self.create_user(
+            email=email,
+            password=password,
+            role=self.model.Role.ADMIN
+        )
+
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+
+    class Role(models.TextChoices):
+        ADMIN = 'admin', 'Admin'
+        HR = 'hr', 'HR'
+        MANAGER = 'manager', 'Manager'
+        EMPLOYEE = 'employee', 'Employee'
+
+    email = models.EmailField(unique=True)
+
+    role = models.CharField(
+        max_length=20,
+        choices=Role.choices
+    )
+
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(auto_now_add=True)
 
     two_fa_enabled = models.BooleanField(default=False)
     two_fa_secret = models.TextField(null=True, blank=True)
 
+    objects = CustomUserManager()
+
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = []
 
     def __str__(self):
         return self.email
-
-
-
-
-class Roles(models.Model):
-    name = models.CharField(max_length=255, blank=False)
-
-    def __str__(self):
-        return self.name
-
-
-class UserRoles(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    role = models.ForeignKey(Roles, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('user', 'role')
-
-
-
-class Permissions(models.Model):
-    module = models.CharField(max_length=255, blank=False)
-    action = models.CharField(max_length=255, blank=False)
-
-    def __str__(self):
-        return f"{self.module} | {self.action}"
-
-
-class RolePermission(models.Model):
-    role = models.ForeignKey(Roles, on_delete=models.CASCADE)
-    permission = models.ForeignKey(Permissions, on_delete=models.CASCADE)
-    class Meta:
-        unique_together = ('role', 'permission')
-
-
-
-
