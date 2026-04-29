@@ -18,14 +18,6 @@ class Designations(models.Model):
         return self.name
 
 
-class Locations(models.Model):
-    name = models.CharField(max_length=200)
-    city = models.CharField(max_length=255)
-    state = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
 
 class Employee(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -40,7 +32,7 @@ class Employee(models.Model):
 
     department = models.ForeignKey(Departments, on_delete=models.CASCADE, blank=True, null=True)
     designation = models.ForeignKey(Designations, on_delete=models.CASCADE, blank=True, null=True)
-    location = models.ForeignKey(Locations, on_delete=models.CASCADE, blank=True, null=True)
+    location = models.CharField(blank=True, null=True)
 
     joining_date = models.DateField(null=True, blank=True)
     employment_type = models.CharField(max_length=100, null=True,blank=True)

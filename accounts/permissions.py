@@ -25,3 +25,4 @@ class IsAdminOnly(BasePermission):
             return False
 
         return user.role == User.Role.ADMIN
+

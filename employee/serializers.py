@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
-from .models import Employee, Departments, Designations, Locations
+from .models import Employee, Departments, Designations
 
 User = get_user_model()
 
@@ -21,7 +21,7 @@ class EmployeeCreateSerializer(serializers.Serializer):
 
     department = serializers.IntegerField(required=False, allow_null=True)
     designation = serializers.IntegerField(required=False ,allow_null=True)
-    location = serializers.IntegerField(required=False ,allow_null=True)
+    location = serializers.CharField(required=False ,allow_blank=True)
 
     joining_date = serializers.DateField(required=False, allow_null=True)
     employment_type = serializers.CharField(required=False, allow_blank=True)
@@ -89,9 +89,16 @@ class DesignationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Level must be >= 1")
         return data
 
-class LocationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Locations
-        fields = "__all__"
 
-        
+class EmployeeSerializer(serializers.ModelSerializer):
+
+    email = serializers.CharField(source="user.email", read_only=True)
+    role = serializers.CharField(source="user.role", read_only=True)
+
+    department_name = serializers.CharField(source="department.name", read_only=True)
+    designation_name = serializers.CharField(source="designation.name", read_only=True)
+    
+
+    class Meta:
+        model = Employee
+        fields = "__all__"

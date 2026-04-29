@@ -30,6 +30,10 @@ class LoginApiView(APIView):
 
             response = Response({
                 "access" :str(access),
+                "user":{
+                    "email": user.email,
+                    "role": user.role,
+                }
 
             }, status=status.HTTP_200_OK)
 
@@ -153,4 +157,3 @@ class AdminSetPasswordView(APIView):
             {"message": "Password updated successfully"},
             status=status.HTTP_200_OK
         )
-    
