@@ -1,6 +1,6 @@
 from django.db import models
 
-from employee.models import Employees
+from employee.models import Employee
 
 
 # Create your models here.
@@ -27,6 +27,8 @@ class Leaves(models.Model):
     end_date = models.DateField()
     total_days = models.IntegerField()
     status = models.CharField(max_length=50)
+    reason = models.CharField(max_length=500)
+    is_half_day = models.BooleanField(default=False)
 
     approved_by_manager = models.ForeignKey(Employees, on_delete=models.CASCADE)
     approved_by_hr = models.ForeignKey(Employees, on_delete=models.CASCADE)
