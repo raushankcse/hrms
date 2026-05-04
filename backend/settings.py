@@ -145,10 +145,29 @@ SIMPLE_JWT = {
 
 ALLOWED_HOSTS = ["*"]  # later restrict
 
-CORS_ALLOW_ALL_ORIGINS = True
 
 from corsheaders.defaults import default_headers
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "https://hrms-frontend-seven-kappa.vercel.app"
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "authorization",
 ]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "https://hrms-frontend-seven-kappa.vercel.app",
+]
+
+DEBUG = os.getenv("DEBUG") == "True"
+
+if DEBUG:
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+else:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
